@@ -77,12 +77,16 @@
         form = document.getElementById("form");
         user = document.getElementById("user");
         message = document.getElementById("message");
+        id = " #" + Math.floor(Math.random()*100000);
 
         function getTime(){
             var today = new Date();
             var yyyy = today.getFullYear();
             var m = today.getMinutes();
             var s = today.getSeconds();
+            if (s == 0){
+                s = "00";
+            }
 
             var h = today.getHours();
 
@@ -129,7 +133,7 @@
         
         function showMessage(snapshot){
             var post = snapshot.val()
-            textDisplay.innerHTML += "<tr><th style='width: 25%'><h2>" + post.user + "</h2><h4>" + post.time + "</h4></th><td>" + post.message + "</td></tr>"
+            textDisplay.innerHTML += "<tr><th style='width: 25%'><h2>" + post.user + post.id + "</h2><h4>" + post.time + "</h4></th><td>" + post.message + "</td></tr>"
         }
 
         function regNewMessage(evt){
@@ -137,7 +141,8 @@
             newMessage = {
                 "user": user.value,
                 "message": message.value,
-                "time": getTime()
+                "time": getTime(),
+                "id": id
             };
             messages.push(newMessage);
             message.value = "";
