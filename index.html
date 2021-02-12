@@ -150,8 +150,7 @@
         function dispayMessage(a){
             textDisplay.innerHTML = "";
             a1 = a.sort(function(a,b){ return b.timeStamp - a.timeStamp}).slice(10*page,10*(page+1));
-            console.log(a1);
-            a1.forEach(post => textDisplay.innerHTML += "<div id='flex' style='margin-top: 15px;'><h3 style='color: green;'><b>" + post.user + "</b></h3><h3 style='color: red'>" + post.timeString + "</h3></div><div style='margin-bottom: 15px;'><h1>" + post.message + "</h1></div>")
+            a1.forEach(post => textDisplay.innerHTML += "<div id='flex' style='margin-top: 15px;'><h3 style='color: green;'><b>" + post.user.replaceAll('<', '&lt').replaceAll('>', '&gt') + "</b></h3><h3 style='color: red'>" + post.timeString + "</h3></div><div style='margin-bottom: 15px;'><h1>" + post.message.replaceAll('<', '&lt').replaceAll('>', '&gt') + "</h1></div>");
         }
 
         function regNewMessage(evt){
