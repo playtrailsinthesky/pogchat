@@ -3,19 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <title>pogchat :O</title>
 </head>
 <style>
-    table, th, td {
-        border: 1px solid black;
-        border-collapse: collapse;
-        padding: 10px;
+    #flex {
+        display: flex;
+        justify-content: space-between;
     }
-    table {
-        table-layout: fixed; 
+    body {
+        background-color: black;
+        color: white;
+        font-family: 'Roboto', sans-serif;
     }
-    th {
-        font-size: 20px;
+    div {
+        background-color: white;
+        border-style: solid;
+        color: black;
+        padding-left: 10px;
+        padding-right: 10px;
     }
     input[type=text] {
         width: 20%;
@@ -39,17 +46,14 @@
     }
 </style>
 <body>
-    <h1>huh</h1>
+    <h1>pogchat :O</h1>
+    <h3>say ur thanks to the chef</h3>
     <form id="form">
         <input type="text" id="user" required placeholder="name pls :)"></br>
         <input type="text" id="message" required placeholder="say smth pls :)"></br>
         <button type="submit" class="button">send :)</button>
-        <h1></h1>
     </form>
-    <article>
-        <table style="width: 100%;"><th style="font-size: 30px;">le message</th></table>
-        <table id="txt" style="width: 100%"></table>
-    </article>
+    <article id=txt></article>
 
     <script src="https://www.gstatic.com/firebasejs/8.2.2/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.2.2/firebase-database.js"></script>
@@ -71,6 +75,9 @@
     </script>
 
     <script>
+        messageList = [];
+        page = 0;
+
         database = firebase.database();
         textDisplay = document.getElementById("txt");
         messages = database.ref("messages");
@@ -84,8 +91,11 @@
             var yyyy = today.getFullYear();
             var m = today.getMinutes();
             var s = today.getSeconds();
-            if (s == 0){
-                s = "00";
+            if (s < 10){
+                s = "0" + s;
+            }
+            if (m < 10){
+                m = "0" + m;
             }
 
             var h = today.getHours();
@@ -131,9 +141,17 @@
             return today;
         }
         
-        function showMessage(snapshot){
-            var post = snapshot.val()
-            textDisplay.innerHTML += "<tr><th style='width: 25%'><h2>" + post.user + post.id + "</h2><h4>" + post.time + "</h4></th><td>" + post.message + "</td></tr>"
+        function retrieveMessage(snapshot){
+            var post = snapshot.val();
+            messageList.push(post);
+            dispayMessage(messageList);
+        }
+        
+        function dispayMessage(a){
+            textDisplay.innerHTML = "";
+            a1 = a.sort(function(a,b){ return b.timeStamp - a.timeStamp}).slice(10*page,10*(page+1));
+            console.log(a1);
+            a1.forEach(post => textDisplay.innerHTML += "<div id='flex' style='margin-top: 15px;'><h3 style='color: green;'><b>" + post.user + "</b></h3><h3 style='color: red'>" + post.timeString + "</h3></div><div style='margin-bottom: 15px;'><h1>" + post.message + "</h1></div>")
         }
 
         function regNewMessage(evt){
@@ -141,14 +159,15 @@
             newMessage = {
                 "user": user.value,
                 "message": message.value,
-                "time": getTime(),
+                "timeString": getTime(),
+                "timeStamp": Date.now(),
                 "id": id
             };
             messages.push(newMessage);
             message.value = "";
         }
 
-        messages.on("child_added", showMessage);
+        messages.on("child_added", retrieveMessage);
         form.onsubmit = regNewMessage;
     </script>
 </body>
