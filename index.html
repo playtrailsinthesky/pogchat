@@ -5,46 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     <title>pogchat :O</title>
 </head>
-<style>
-    #flex {
-        display: flex;
-        justify-content: space-between;
-    }
-    body {
-        background-color: black;
-        color: white;
-        font-family: 'Roboto', sans-serif;
-    }
-    div {
-        background-color: white;
-        border-style: solid;
-        color: black;
-        padding-left: 10px;
-        padding-right: 10px;
-    }
-    input[type=text] {
-        width: 20%;
-        padding: 12px 20px;
-        margin: 8px 0;
-        box-sizing: border-box;
-    }
-    .button {
-        border-radius: 10px;
-        border: none;
-        color: black;
-        padding: 15px 32px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-    }
-    .button:hover {
-        background-color: black;
-        color: white;
-    }
-</style>
 <body>
     <h1>pogchat :O</h1>
     <h3>say ur thanks to the chef</h3>
@@ -86,59 +49,12 @@
         message = document.getElementById("message");
         id = " #" + Math.floor(Math.random()*100000);
 
-        function getTime(){
-            var today = new Date();
-            var yyyy = today.getFullYear();
-            var m = today.getMinutes();
-            var s = today.getSeconds();
-            if (s < 10){
-                s = "0" + s;
-            }
-            if (m < 10){
-                m = "0" + m;
-            }
-
-            var h = today.getHours();
-
-            var monthNames = {
-                0: "January",
-                1: "February",
-                2: "March",
-                3: "April",
-                4: "May",
-                5: "June",
-                6: "July",
-                7: "August",
-                8: "September",
-                9: "October",
-                10: "November",
-                11: "December"
-            }
-            var mm = monthNames[today.getMonth()];
-
-            var dd = today.getDate();
-            if (dd == 1){
-                dd = dd + "st";
-            }
-            else if (dd == 2){
-                dd = dd + "nd";
-            }
-            else if (dd == 3){
-                dd = dd + "rd";
-            }
-            else {
-                dd = dd + "th";
-            }
-
-            today = mm + ' ' + dd + ', ' + yyyy + ' at ';
-            if (h < 12){
-                today = today + h + ':' + m + ':' + s + " AM";
-            }
-            else {
-                h = h - 12;
-                today = today + h + ':' + m + ':' + s + " PM";
-            }
-            return today;
+        function stampToDate(t){
+            const dateObject = new Date(t);
+            const options = { year: 'numeric', month: 'short', day: 'numeric'};
+            const dateFormat = dateObject.toLocaleDateString('en-US', options) + " · " + 
+            dateObject.toLocaleTimeString('en-US');
+            return dateFormat;
         }
         
         function retrieveMessage(snapshot){
@@ -150,7 +66,10 @@
         function dispayMessage(a){
             textDisplay.innerHTML = "";
             a1 = a.sort(function(a,b){ return b.timeStamp - a.timeStamp}).slice(10*page,10*(page+1));
-            a1.forEach(post => textDisplay.innerHTML += "<div id='flex' style='margin-top: 15px;'><h3 style='color: green;'><b>" + post.user.replaceAll('<', '&lt').replaceAll('>', '&gt') + "</b></h3><h3 style='color: red'>" + post.timeString + "</h3></div><div style='margin-bottom: 15px;'><h1>" + post.message.replaceAll('<', '&lt').replaceAll('>', '&gt') + "</h1></div>");
+            a1.forEach(post => textDisplay.innerHTML += "<div id='flex' style='margin-top: 15px;'><h3 style='color: green;'><b>" + 
+                post.user.replaceAll('<', '&lt').replaceAll('>', '&gt') + "</b></h3><h3 style='color: red'>" + 
+                    stampToDate(post.timeStamp) + "</h3></div><div style='margin-bottom: 15px;'><h1>" + 
+                        post.message.replaceAll('<', '&lt').replaceAll('>', '&gt') + "</h1></div>");
         }
 
         function regNewMessage(evt){
@@ -158,9 +77,7 @@
             newMessage = {
                 "user": user.value,
                 "message": message.value,
-                "timeString": getTime(),
                 "timeStamp": Date.now(),
-                "id": id
             };
             messages.push(newMessage);
             message.value = "";
