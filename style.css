@@ -1,0 +1,36 @@
+#flex {
+    display: flex;
+    justify-content: space-between;
+}
+body {
+    background-color: black;
+    color: white;
+    font-family: 'Roboto', sans-serif;
+}
+div {
+    background-color: white;
+    border-style: solid;
+    color: black;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+input[type=text] {
+    width: 20%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+}
+.button {
+    border-radius: 10px;
+    border: none;
+    color: black;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
+.button:hover {
+    background-color: black;
+    color: white;
+}
