@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,19 +9,27 @@
     <link rel="stylesheet" href="style.css">
     <title>pogchat :O</title>
 </head>
+
 <body>
-    <h1>pogchat :O</h1>
+    <a href="index.html">
+        <img src="pogchat.png">
+    </a>
     <h3>messages :3</h3>
     <form id="form">
-        <input type="text" id="user" required placeholder="name pls :)"></br>
+        <input type="text" id="user" maxlength="16" required placeholder="name pls :)"></br>
         <input type="text" id="message" required placeholder="say smth pls :)"></br>
         <button type="submit" class="button">send :)</button>
+        <a class="button" href="register.html" id="register"></a>
+        <a class="button" href="login.html" id="logIn"></a>
+        <a class="button" href="logout.html" id="logOut"></a>
     </form>
     <article id=txt></article>
 
     <script src="https://www.gstatic.com/firebasejs/8.2.2/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.2.2/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.2.2/firebase-analytics.js"></script>
+
+    <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js"></script>
 
     <script>
         var firebaseConfig = {
@@ -38,47 +47,127 @@
     </script>
 
     <script>
-        messageList = [];
-        page = 0;
+        var messageList = [];
+        var page = 0;
 
-        database = firebase.database();
-        textDisplay = document.getElementById("txt");
-        messages = database.ref("messages");
-        form = document.getElementById("form");
-        user = document.getElementById("user");
-        message = document.getElementById("message");
-        id = " #" + Math.floor(Math.random()*100000);
+        const database = firebase.database();
+        var textDisplay = document.getElementById("txt");
+        const messages = database.ref("messages");
+        const users = database.ref("users")
+        const form = document.getElementById("form");
+        var message = document.getElementById("message");
+        var userForm = document.getElementById("user");
+        var logIn = document.getElementById("logIn")
+        var logOut = document.getElementById("logOut")
+        var register = document.getElementById("register")
 
-        function stampToDate(t){
+        function stampToDate(t) {
             const dateObject = new Date(t);
-            const options = { year: 'numeric', month: 'short', day: 'numeric'};
-            const dateFormat = dateObject.toLocaleDateString('en-US', options) + " · " + 
-            dateObject.toLocaleTimeString('en-US');
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            const dateFormat = dateObject.toLocaleDateString('en-US', options) + " · " +
+                dateObject.toLocaleTimeString('en-US');
             return dateFormat;
         }
-        
-        function retrieveMessage(snapshot){
+
+        function retrieveMessage(snapshot) {
             var post = snapshot.val();
             messageList.push(post);
             dispayMessage(messageList);
         }
-        
-        function dispayMessage(a){
-            textDisplay.innerHTML = "";
-            a1 = a.sort(function(a,b){ return b.timeStamp - a.timeStamp}).slice(10*page,10*(page+1));
-            a1.forEach(post => textDisplay.innerHTML += "<div id='flex' style='margin-top: 15px;'><h3 style='color: green;'><b>" + 
-                post.user.replaceAll('<', '&lt').replaceAll('>', '&gt') + "</b></h3><h3 style='color: red'>" + 
-                    stampToDate(post.timeStamp) + "</h3></div><div style='margin-bottom: 15px;'><h1>" + 
-                        post.message.replaceAll('<', '&lt').replaceAll('>', '&gt') + "</h1></div>");
+
+        function getCookie(cname) {
+            var name = cname + "=";
+            var decodedCookie = decodeURIComponent(document.cookie);
+            var ca = decodedCookie.split(',');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
         }
 
-        function regNewMessage(evt){
+        const loggedIn = (getCookie("loggedIn") == 'true');
+
+        if (loggedIn) {
+            userForm.disabled = true;
+            userForm.placeholder = "Currently logged in as " + getCookie("username");
+            logOut.innerHTML = "Log out";
+            logIn.style.backgroundColor = "black";
+            logIn.style.cursor = "default";
+            logIn.onclick = function(){return false;};
+            register.style.backgroundColor = "black";
+            register.style.cursor = "default";
+            register.onclick = function(){return false;};
+        }
+        else {
+            register.innerHTML = "Register";
+            logIn.innerHTML = "Log in";
+            logOut.style.backgroundColor = "black";
+            logOut.style.cursor = "default";
+            logOut.onclick = function(){return false;};
+        }
+        
+        function getKeyByValue(object, value) {
+            return Object.keys(object).find(key => object[key] === value);
+        }
+
+        function getValueByKey(object, key) {
+            return Object.keys(object).find(value => object[value] === key);
+        }
+
+        function usernameKeyPairs(snapshot) {
+            var usersRef = database.ref('users');
+            var nameKeyList = {};
+            usersRef.on('value', function (snapshot) {
+                snapshot.forEach(function (childSnapshot) {
+                    nameKeyList[childSnapshot.val().user] = childSnapshot.key;
+                });
+            });
+            return nameKeyList;
+        }
+        nameKeyList = usernameKeyPairs();
+
+        function dispayMessage(a) {
+            textDisplay.innerHTML = "";
+            nameKeyList = usernameKeyPairs();
+            var a1 = a.sort(function (a, b) { return b.timeStamp - a.timeStamp }).slice(10 * page, 10 * (page + 1));
+            a1.forEach(post => {if (post.anon){
+                textDisplay.innerHTML += "<div id='flex' style='margin-top: 15px;'><h3 style='color: red;'><b>" +
+                post.user.replaceAll('<', '&lt').replaceAll('>', '&gt') + " (anon) </b></h3><h3 style='color: red'>" +
+                stampToDate(post.timeStamp) + "</h3></div><div style='margin-bottom: 15px; word-wrap: break-word;'><h1>" +
+                post.message.replaceAll('<', '&lt').replaceAll('>', '&gt') + "</h1></div>"}
+            else {
+                textDisplay.innerHTML += "<div id='flex' style='margin-top: 15px;'><h3 style='color: green;'><b>" +
+                getValueByKey(nameKeyList, post.user).replaceAll('<', '&lt').replaceAll('>', '&gt') + "</b></h3><h3 style='color: red'>" +
+                stampToDate(post.timeStamp) + "</h3></div><div style='margin-bottom: 15px; word-wrap: break-word;'><h1>" +
+                post.message.replaceAll('<', '&lt').replaceAll('>', '&gt') + "</h1></div>"}
+            });
+        }
+
+        function regNewMessage(evt) {
             evt.preventDefault();
-            newMessage = {
-                "user": user.value,
-                "message": message.value,
-                "timeStamp": Date.now(),
-            };
+            if (loggedIn) {
+                nameKeyList = usernameKeyPairs();
+                var newMessage = {
+                    "user": nameKeyList[getCookie("username")],
+                    "message": message.value,
+                    "timeStamp": Date.now(),
+                    "anon": false
+                };
+            }
+            else {
+                newMessage = {
+                    "user": user.value,
+                    "message": message.value,
+                    "timeStamp": Date.now(),
+                    "anon": true
+                };
+            }
             messages.push(newMessage);
             message.value = "";
         }
