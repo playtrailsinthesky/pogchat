@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <title>pogchat :O</title>
+</head>
+<body>
+    <a href="index.html">
+        <img src="pogchat.png">
+    </a>
+    <h3>login here !! !! ! ! !</h3>
+    <form id="form">
+        <input type="text" id="user" maxlength="16" required placeholder="name pls :)"></br>
+        <input type="password" id="password" required placeholder="password (i wont tell anyone)"></br>
+        <button type="submit" class="button">send :)</button>
+    </form>
+
+    <script src="https://www.gstatic.com/firebasejs/8.2.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.2/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.2/firebase-analytics.js"></script>
+
+    <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js"></script>
+
+    <script>
+        var firebaseConfig = {
+            apiKey: "AIzaSyBYJ1JsO_VGidUsDB8N9ieWsd4ChT-2Gf4",
+            authDomain: "based-9c5c9.firebaseapp.com",
+            databaseURL: "https://based-9c5c9-default-rtdb.firebaseio.com",
+            projectId: "based-9c5c9",
+            storageBucket: "based-9c5c9.appspot.com",
+            messagingSenderId: "552112967578",
+            appId: "1:552112967578:web:0a0c0532124903ff563423",
+            measurementId: "G-H778YE37NL"
+        };
+        firebase.initializeApp(firebaseConfig);
+        firebase.analytics();
+    </script>
+
+    <script>
+        database = firebase.database();
+        users = database.ref("users");
+        form = document.getElementById("form");
+        user = document.getElementById("user");
+        message = document.getElementById("password");
+
+        function retrieveUsers(snapshot){
+            var usersRef = database.ref('users');
+            var usersList = [];
+            usersRef.on('value', function(snapshot) {
+                snapshot.forEach(function(childSnapshot) {
+                    usersList.push(childSnapshot.val());
+                });
+            });
+            return usersList;
+        }
+
+        var usersList = retrieveUsers();
+
+        function isNotValidUser(user){
+            var usersList = retrieveUsers();
+            for (var i = 0; i < usersList.length; i++){
+                if (user.user == usersList[i].user && user.password == usersList[i].password){
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function getCookie(cname) {
+            var name = cname + "=";
+            var decodedCookie = decodeURIComponent(document.cookie);
+            var ca = decodedCookie.split(',');
+            for(var i = 0; i <ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        const loggedIn = (getCookie("loggedIn") == 'true');
+        if (loggedIn){
+            alert("You are already logged in");
+            window.location.replace("index.html");
+        }
+        
+        function regNewUser(evt){
+            evt.preventDefault();
+            newUser = {
+                "timeStamp": Date.now(),
+                "user": user.value,
+                "password": password.value
+            };
+            if (isNotValidUser(newUser)){
+                alert("The username or password does not match any existing users");
+            }
+            else {
+                confirmLogin(newUser)
+            }
+        }
+
+        function confirmLogin(newUser) {
+            document.cookie = "loggedIn=true, username=" + newUser.user + ", password=" + newUser.password + ", path=/";
+            window.location.replace("index.html");
+        }
+        form.onsubmit = regNewUser;
+    </script>
+</body>
+</html>
