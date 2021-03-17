@@ -14,8 +14,8 @@ div {
     padding-left: 10px;
     padding-right: 10px;
 }
-input[type=text] {
-    width: 20%;
+input {
+    width: 100%;
     padding: 12px 20px;
     margin: 8px 0;
     box-sizing: border-box;
@@ -24,6 +24,7 @@ input[type=text] {
     border-radius: 10px;
     border: none;
     color: black;
+    background-color: lightgray;
     padding: 15px 32px;
     text-align: center;
     text-decoration: none;
